@@ -1,7 +1,9 @@
 defmodule Aoc2025.Day1 do
   def part1 do
-    Aoc2025.Inputs.get(1)
-    |> dbg()
+    {:ok, input} =
+      Aoc2025.Inputs.get(1)
+      |> dbg()
+
     "hello"
   end
 
