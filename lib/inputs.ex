@@ -28,7 +28,7 @@ defmodule Aoc2025.Inputs do
   defp get_session_token() do
     case File.read(@token_file) do
       {:ok, token} ->
-        token
+        {:ok, token}
 
       {:error, reason} ->
         {:error, "Failed to read token from file #{@token_file} because #{reason}"}
