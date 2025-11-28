@@ -3,7 +3,7 @@ defmodule Aoc2025.Inputs do
 
   @base_url URI.parse("https://adventofcode.com/2024/day/")
 
-  def get(day) do
+  def get_day(day) do
     case File.read(".cache/input#{day}.txt") do
       {:ok, content} ->
         Logger.debug("Using cached input file")
@@ -15,7 +15,7 @@ defmodule Aoc2025.Inputs do
   end
 
   defp download(day) do
-    Logger.debug("Downloading input input")
+    Logger.debug("Downloading input")
 
     with {:ok, token} <- File.read(".token"),
          {:ok, input} <- http_get_input(day, token),
