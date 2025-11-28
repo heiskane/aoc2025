@@ -1,6 +1,7 @@
 defmodule Aoc2025.Inputs do
   require Logger
 
+  @token_file ".token"
   @base_url URI.parse("https://adventofcode.com/2024/day/")
 
   def get_day(day) do
@@ -17,10 +18,20 @@ defmodule Aoc2025.Inputs do
   defp download(day) do
     Logger.debug("Downloading input")
 
-    with {:ok, token} <- File.read(".token"),
+    with {:ok, token} <- get_session_token(),
          {:ok, input} <- http_get_input(day, token),
          {:ok, input} <- cache_input(day, input) do
       {:ok, input}
+    end
+  end
+
+  defp get_session_token() do
+    case File.read(@token_file) do
+      {:ok, token} ->
+        token
+
+      {:error, reason} ->
+        {:error, "Failed to read token from file #{@token_file} because #{reason}"}
     end
   end
 
