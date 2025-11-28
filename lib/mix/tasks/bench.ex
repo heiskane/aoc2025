@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Aoc.Run do
+defmodule Mix.Tasks.Aoc.Bench do
   use Mix.Task
 
   def run([day, part]) do
@@ -6,7 +6,10 @@ defmodule Mix.Tasks.Aoc.Run do
     {:ok, input} = Aoc2025.Inputs.get_day(day)
     {:ok, _} = Application.ensure_all_started(:httpoison)
 
-    apply(day_module, part_func, [input])
-    |> dbg()
+    Benchee.run(%{
+      "day#{day} - part#{part}" => fn ->
+        apply(day_module, part_func, [input])
+      end
+    })
   end
 end
