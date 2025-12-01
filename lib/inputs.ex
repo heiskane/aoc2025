@@ -2,7 +2,7 @@ defmodule Aoc2025.Inputs do
   require Logger
 
   @token_file ".token"
-  @base_url URI.parse("https://adventofcode.com/2024/day/")
+  @base_url URI.parse("https://adventofcode.com/2025/day/")
 
   def get_day(day) do
     case File.read(".cache/input#{day}.txt") do
@@ -36,13 +36,8 @@ defmodule Aoc2025.Inputs do
   end
 
   defp http_get_input(day, token) do
-    case HTTPoison.get!(URI.append_path(@base_url, "/#{day}/input"), %{},
-           hackney: [
-             cookie: [
-               "session=#{token}"
-             ]
-           ]
-         ) do
+    case URI.append_path(@base_url, "/#{day}/input")
+         |> HTTPoison.get!(%{}, hackney: [cookie: ["session=#{token}"]]) do
       %HTTPoison.Response{status_code: 200, body: body} ->
         {:ok, body}
 
