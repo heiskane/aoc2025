@@ -14,11 +14,15 @@ defmodule Aoc2025.Day2 do
     input
     |> String.trim_trailing()
     |> String.split(",", trim: true)
-    |> Stream.flat_map(fn row ->
-      [a, b] = String.split(row, "-")
-      Enum.to_list(String.to_integer(a)..String.to_integer(b))
+    |> Enum.map(fn row ->
+      Task.async(fn ->
+        [a, b] = String.split(row, "-")
+
+        Enum.to_list(String.to_integer(a)..String.to_integer(b))
+        |> Enum.filter(&is_invalid2(&1))
+      end)
     end)
-    |> Stream.filter(&is_invalid2/1)
+    |> Enum.flat_map(&Task.await/1)
     |> Enum.sum()
   end
 
