@@ -14,30 +14,20 @@ defmodule Aoc2025.Day2 do
     input
     |> String.trim_trailing()
     |> String.split(",", trim: true)
-    |> Enum.map(&String.split(&1, "-"))
-    |> Enum.map(fn [a, b] -> {String.to_integer(a), String.to_integer(b)} end)
-    |> Enum.map(&count_scores/1)
-    |> List.flatten()
-    |> Enum.sum()
-  end
-
-  defp count_scores({start, last}) do
-    Enum.map(start..last, fn id ->
-      case is_invalid2(id) do
-        true -> id
-        false -> 0
-      end
+    |> Stream.flat_map(fn row ->
+      [a, b] = String.split(row, "-")
+      Enum.to_list(String.to_integer(a)..String.to_integer(b))
     end)
+    |> Stream.filter(&is_invalid2/1)
+    |> Enum.sum()
   end
 
   defp is_invalid2(id) do
     # Fine and Wilf's theorem
-    digits = Integer.digits(id)
-    combined = digits ++ digits
+    digits = Integer.to_string(id)
 
-    Enum.slice(combined, 1, length(combined) - 2)
-    |> Enum.join()
-    |> String.contains?(Integer.to_string(id))
+    String.slice(digits <> digits, 1, String.length(digits) * 2 - 2)
+    |> String.contains?(digits)
   end
 
   defp count_invalid({start, last}, invalids) when start > last, do: invalids
