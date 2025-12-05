@@ -5,7 +5,7 @@ defmodule Aoc2025.Day4 do
   def part1(input) do
     grid =
       input
-      |> Grid.new()
+      |> Grid.parse()
 
     grid
     |> Grid.points()
@@ -17,7 +17,7 @@ defmodule Aoc2025.Day4 do
   def part2(input) do
     grid =
       input
-      |> Grid.new()
+      |> Grid.parse()
 
     roll_count =
       grid

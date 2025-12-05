@@ -10,7 +10,7 @@ defmodule Aoc2025.Grid do
     end
   end
 
-  def new(string) do
+  def parse(string) do
     rows =
       string
       |> String.trim_trailing()
