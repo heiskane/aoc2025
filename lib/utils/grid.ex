@@ -37,9 +37,12 @@ defmodule Aoc2025.Grid do
   end
 
   def update_at(%__MODULE__{} = grid, %Point{} = p, new) do
-    List.update_at(grid.rows, p.x, fn row ->
-      List.update_at(row, p.y, fn _ -> new end)
-    end)
+    rows =
+      List.update_at(grid.rows, p.x, fn row ->
+        List.update_at(row, p.y, fn _ -> new end)
+      end)
+
+    %__MODULE__{grid | rows: rows}
   end
 
   def points(%__MODULE__{} = grid) do
@@ -48,5 +51,12 @@ defmodule Aoc2025.Grid do
         Point.new(x, y)
       end)
     end)
+  end
+
+  defimpl String.Chars, for: Aoc2025.Grid do
+    def to_string(%Aoc2025.Grid{} = grid) do
+      Enum.map(grid.rows, &Enum.join(&1, ""))
+      |> Enum.join("\n")
+    end
   end
 end
