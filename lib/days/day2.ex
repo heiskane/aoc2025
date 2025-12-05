@@ -5,8 +5,7 @@ defmodule Aoc2025.Day2 do
     |> String.split(",", trim: true)
     |> Enum.map(&String.split(&1, "-"))
     |> Enum.map(fn [a, b] -> {String.to_integer(a), String.to_integer(b)} end)
-    |> Enum.map(&count_invalid(&1, []))
-    |> List.flatten()
+    |> Enum.flat_map(&count_invalid(&1, []))
     |> Enum.sum()
   end
 
