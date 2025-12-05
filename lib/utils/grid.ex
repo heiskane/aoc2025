@@ -1,7 +1,7 @@
 defmodule Aoc2025.Grid do
   alias Aoc2025.Point
 
-  defstruct [:height, :width, :rows]
+  defstruct [:height, :width, :items]
 
   defmacro in_bounds(grid, x, y) do
     quote do
@@ -20,42 +20,38 @@ defmodule Aoc2025.Grid do
     height = length(rows)
     width = length(hd(rows))
 
-    %__MODULE__{height: height, width: width, rows: rows}
-  end
-
-  def at(grid, point) when not in_bounds(grid, point.x, point.y), do: nil
-  def at(grid, point), do: Enum.at(grid.rows, point.x) |> Enum.at(point.y)
-
-  def find(%__MODULE__{} = grid, element) do
-    Enum.with_index(grid.rows)
-    |> Enum.reduce_while(nil, fn {row, x}, _acc ->
-      case Enum.find_index(row, &(&1 == element)) do
-        nil -> {:cont, nil}
-        y -> {:halt, {x, y}}
-      end
-    end)
-  end
-
-  def update_at(%__MODULE__{} = grid, %Point{} = p, new) do
-    rows =
-      List.update_at(grid.rows, p.x, fn row ->
-        List.update_at(row, p.y, fn _ -> new end)
+    items =
+      rows
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {row, x} ->
+        Enum.with_index(row)
+        |> Enum.map(fn {item, y} -> {x, y, item} end)
+      end)
+      |> Enum.reduce(%{}, fn {x, y, item}, acc ->
+        Map.put(acc, {x, y}, item)
       end)
 
-    %__MODULE__{grid | rows: rows}
+    %__MODULE__{height: height, width: width, items: items}
   end
+
+  def at(grid, point), do: Map.get(grid.items, {point.x, point.y}, nil)
+
+  def update_at(%__MODULE__{} = grid, %Point{} = p, new),
+    do: %__MODULE__{grid | items: Map.replace(grid.items, {p.x, p.y}, new)}
 
   def points(%__MODULE__{} = grid) do
-    Enum.flat_map(0..(grid.width - 1), fn x ->
-      Enum.map(0..(grid.height - 1), fn y ->
-        Point.new(x, y)
-      end)
-    end)
+    Map.keys(grid.items)
+    |> Enum.map(fn {x, y} -> Point.new(x, y) end)
   end
 
   defimpl String.Chars, for: Aoc2025.Grid do
     def to_string(%Aoc2025.Grid{} = grid) do
-      Enum.map(grid.rows, &Enum.join(&1, ""))
+      Enum.map(0..(grid.width - 1), fn x ->
+        Enum.map(0..(grid.height - 1), fn y ->
+          Map.get(grid.items, {x, y})
+        end)
+      end)
+      |> Enum.map(&Enum.join(&1, ""))
       |> Enum.join("\n")
     end
   end
