@@ -19,36 +19,32 @@ defmodule Aoc2025.Day4 do
       input
       |> Grid.new()
 
-    grid2 =
-      Enum.reduce_while(0..1000, grid, fn _, acc1 ->
-        removables = find_removables(acc1)
-
-        case length(removables) do
-          0 ->
-            {:halt, acc1}
-
-          _ ->
-            grid =
-              Enum.reduce(removables, acc1, fn roll, acc2 ->
-                Grid.update_at(acc2, roll, ".")
-              end)
-
-            {:cont, grid}
-        end
-      end)
-
-    # |> IO.puts()
-
-    asdf =
+    roll_count =
       grid
       |> find_rolls()
       |> Enum.count()
 
-    qwer = grid2
-    |> find_rolls()
-    |> Enum.count()
+    rolls_left =
+      removal_loop(grid)
+      |> find_rolls()
+      |> Enum.count()
 
-    asdf - qwer
+    roll_count - rolls_left
+  end
+
+  def removal_loop(grid) do
+    removables = find_removables(grid)
+
+    case length(removables) do
+      0 -> grid
+      _ -> remove_rolls(grid, removables) |> removal_loop()
+    end
+  end
+
+  def remove_rolls(grid, removables) do
+    Enum.reduce(removables, grid, fn roll, acc ->
+      Grid.update_at(acc, roll, ".")
+    end)
   end
 
   def find_rolls(grid) do
