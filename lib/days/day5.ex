@@ -50,64 +50,23 @@ defmodule Aoc2025.Day5 do
       String.to_integer(start)..String.to_integer(stop)
     end)
     |> Enum.uniq()
-    |> dedup_loop()
+    |> Enum.sort(&(&1.first <= &2.first))
+    |> merge_ranges([])
     |> Enum.map(&Range.size(&1))
     |> Enum.sum()
   end
 
-  def dedup_loop(ranges) do
-    has_overlaps =
-      Enum.with_index(ranges)
-      |> Enum.find_value(false, fn {range, i} ->
-        Enum.with_index(ranges)
-        |> Enum.reject(fn {_, j} -> i == j end)
-        |> Enum.find_value(false, fn {r, _} -> not Range.disjoint?(r, range) end)
-      end)
+  def merge_ranges([head | []], merged), do: [head | merged]
 
-    case has_overlaps do
-      true -> deduplicate(ranges, []) |> dedup_loop()
-      false -> ranges
+  def merge_ranges([first, next | tail], merged) do
+    case not Range.disjoint?(first, next) do
+      true ->
+        combo = min(first.first, next.first)..max(first.last, next.last)
+        merge_ranges([combo | tail], merged)
+
+      false ->
+        merge_ranges([next | tail], [first | merged])
     end
-  end
-
-  def deduplicate([], ranges), do: ranges
-
-  def deduplicate([range | tail], ranges) do
-    # dbg({range, ranges})
-
-    overlapping = Enum.filter(ranges, fn r -> not Range.disjoint?(r, range) end)
-
-    unique_ranges =
-      if length(overlapping) == 0 do
-        [range]
-      else
-        overlapping
-        |> Enum.reduce([], fn overlap, acc ->
-          overlap_range = max(range.first, overlap.first)..min(range.last, overlap.last)
-
-          acc =
-            case overlap_range == range do
-              true ->
-                acc
-
-              false ->
-                acc =
-                  case range.first == overlap_range.first do
-                    true -> acc
-                    false -> [range.first..(overlap_range.first - 1) | acc]
-                  end
-
-                case overlap_range.last == range.last do
-                  true -> acc
-                  false -> [(overlap_range.last + 1)..range.last | acc]
-                end
-            end
-
-          acc
-        end)
-      end
-
-    deduplicate(tail, unique_ranges ++ ranges)
   end
 
   def count_valid([], _covered, count), do: count
