@@ -15,6 +15,12 @@ defmodule Aoc2025.Mix.Utils do
       Mix.raise("Function #{part_func}/0 not exported in #{day_module}")
     end
 
-    {day_module, part_func}
+    pre_processor =
+      case Kernel.function_exported?(day_module, :pre_process_input, 1) do
+        true -> :pre_process_input
+        false -> nil
+      end
+
+    {day_module, part_func, pre_processor}
   end
 end
