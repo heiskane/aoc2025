@@ -50,26 +50,30 @@ defmodule Aoc2025.Day5 do
       String.to_integer(start)..String.to_integer(stop)
     end)
     |> Enum.uniq()
-    |> deduplicate([])
-    |> deduplicate([])
-    |> deduplicate([])
-    |> deduplicate([])
-    |> deduplicate([])
-    |> deduplicate([])
-    |> deduplicate([])
-    |> deduplicate([])
-    |> deduplicate([])
-    |> dbg()
+    |> dedup_loop()
     |> Enum.map(&Range.size(&1))
     |> Enum.sum()
+  end
 
-    # |> count_valid([], 0)
+  def dedup_loop(ranges) do
+    has_overlaps =
+      Enum.with_index(ranges)
+      |> Enum.find_value(false, fn {range, i} ->
+        Enum.with_index(ranges)
+        |> Enum.reject(fn {_, j} -> i == j end)
+        |> Enum.find_value(false, fn {r, _} -> not Range.disjoint?(r, range) end)
+      end)
+
+    case has_overlaps do
+      true -> deduplicate(ranges, []) |> dedup_loop()
+      false -> ranges
+    end
   end
 
   def deduplicate([], ranges), do: ranges
 
   def deduplicate([range | tail], ranges) do
-    dbg({range, ranges})
+    # dbg({range, ranges})
 
     overlapping = Enum.filter(ranges, fn r -> not Range.disjoint?(r, range) end)
 
@@ -79,9 +83,7 @@ defmodule Aoc2025.Day5 do
       else
         overlapping
         |> Enum.reduce([], fn overlap, acc ->
-          dbg({range, overlap, max(range.first, overlap.first)..min(range.last, overlap.last)})
           overlap_range = max(range.first, overlap.first)..min(range.last, overlap.last)
-          # dbg({range.first..(overlap_range.first - 1), (overlap_range.last + 1)..range.last})
 
           acc =
             case overlap_range == range do
@@ -101,19 +103,11 @@ defmodule Aoc2025.Day5 do
                 end
             end
 
-          dbg(acc)
-
           acc
         end)
       end
 
-    dbg(unique_ranges)
-
     deduplicate(tail, unique_ranges ++ ranges)
-  end
-
-  def potato(range, overlapping) do
-    
   end
 
   def count_valid([], _covered, count), do: count
