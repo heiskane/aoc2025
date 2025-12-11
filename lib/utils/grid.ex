@@ -10,13 +10,17 @@ defmodule Aoc2025.Grid do
     end
   end
 
-  def parse(string) do
+  def parse(string) when is_bitstring(string) do
     rows =
       string
       |> String.trim_trailing()
       |> String.split("\n", trim: true)
       |> Enum.map(&String.split(&1, "", trim: true))
 
+    parse(rows)
+  end
+
+  def parse(rows) when is_list(rows) do
     height = length(rows)
     width = length(hd(rows))
 

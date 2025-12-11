@@ -1,6 +1,6 @@
 defmodule Aoc2025.Day5 do
   def pre_process_input(input) do
-    """
+    _ = """
     3-5
     10-14
     16-20
